@@ -1,0 +1,131 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8612923675938521657
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1451685261411771258}
+  - component: {fileID: 132616848815240091}
+  - component: {fileID: 8874195773120435108}
+  - component: {fileID: 8989352820879404331}
+  - component: {fileID: 1232827643426079553}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1451685261411771258
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8612923675938521657}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &132616848815240091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8612923675938521657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87917ced9a6ac1448b8da8dea138954c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraStackManager
+  defaultCamera: {fileID: 0}
+  activePriority: 20
+  inactivePriority: 10
+  perspectiveCameras: []
+  orthographicCameras: []
+--- !u!114 &8874195773120435108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8612923675938521657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01a08f4f99c3de14ba9859b5f1505ec0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomManager
+  rooms:
+  - {fileID: 0}
+  - {fileID: 0}
+  defaultRoom: {fileID: 0}
+--- !u!114 &8989352820879404331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8612923675938521657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb7c388c4eeee4541a6c81f5592269c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerTPS
+  playerInput: {fileID: 0}
+  actorRoot: {fileID: 0}
+  outputCamera: {fileID: 0}
+  playerMovement: {fileID: 0}
+  animator: {fileID: 0}
+  tpsVirtualCamera: {fileID: 0}
+  activePriority: 50
+  inactivePriority: 10
+  yawPivot: {fileID: 0}
+  pitchPivot: {fileID: 0}
+  lookActionName: Look
+  sensitivity: 0.01
+  pitchMin: -35
+  pitchMax: 70
+  lockCursorWhenActive: 0
+  aimRayDistance: 200
+  aimHitMask:
+    serializedVersion: 2
+    m_Bits: 1097
+  rotateToAimSpeed: 10
+  aimPointSmoothTime: 0.06
+  minAimTurnDistance: 1
+  tpsAimLine: {fileID: 0}
+  aimLineStart: {fileID: 0}
+  aimLineStartHeight: 1.4
+  stopAimLineByHit: 0
+  aimLinePadding: 0.02
+  roomOverride: 0
+  roomManager: {fileID: 8874195773120435108}
+  lockActionsExceptAimingAndCrouching: 1
+--- !u!114 &1232827643426079553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8612923675938521657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755c6664875f47d4498b50ded7017647, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAwarenessGUI
+  awareness: {fileID: 0}
+  margin: {x: 200, y: 100}
+  lineHeight: 72
+  fontSize: 64
+  showLightness: 1
+  showNoisiness: 1
+  showBars: 1

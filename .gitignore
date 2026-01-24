@@ -1,0 +1,30 @@
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+
+# MemoryCaptures can get excessive in size
+[Mm]emoryCaptures/
+
+# Asset meta data should only be ignored when the corresponding asset is ignored
+!/[Aa]ssets/**/*.meta
+
+# JetBrains Rider / VS / etc.
+.vs/
+.idea/
+*.csproj
+*.sln
+*.user
+*.userprefs
+*.pidb
+*.booproj
+
+# Unity Addressables cache
+[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
+
+# OS junk
+.DS_Store
+Thumbs.db
