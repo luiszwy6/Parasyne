@@ -45,8 +45,7 @@ public class EnemyPatrolState : EnemyState
         enemy.stateTimer += Time.deltaTime;
 
         // --- Perception checks (can interrupt patrol) ---
-        bool canHearPlayer = enemy.IsPlayerInHearingRange();
-        int noiseLevel = enemy.CurrentNoiseLevel();
+        int perceivedNoise = enemy.GetPerceivedNoiseLevel();
 
         // Vision score is only non-zero if player is inside view cone and LOS is clear.
         float score = enemy.GetVisionScore(out bool inOuter, out bool inInner);
@@ -62,15 +61,27 @@ public class EnemyPatrolState : EnemyState
         }
 
         // --- Suspicion: enter AWARE ---
-        bool audioSuspicious = canHearPlayer && noiseLevel >= enemy.noiseSensitivity;
+        bool audioSuspicious = perceivedNoise >= enemy.noiseSensitivity;
         bool visionAware = score >= enemy.scoreToAware;
 
         if (visionAware || audioSuspicious)
         {
-            if (enemy.player != null) enemy.SetLastKnownPosition(enemy.player.position);
-            enemy.stateMachine.ChangeState(new EnemyAwareState(enemy));
-            return;
+            // Sound always goes to AWARE first (reaction time is handled in AWARE).
+        if (audioSuspicious && enemy.player != null)
+        {
+            enemy.lastAwareTriggerWasSound = true;
+            enemy.SetLastHeardPosition(enemy.player.position);
         }
+        else
+        {
+            enemy.lastAwareTriggerWasSound = false;
+            if (enemy.player != null) enemy.SetLastKnownPosition(enemy.player.position);
+        }
+
+        enemy.stateMachine.ChangeState(new EnemyAwareState(enemy));
+        return;
+        }
+
 
         // --- Waypoint patrol loop ---
         if (enemy.agent == null) return;
