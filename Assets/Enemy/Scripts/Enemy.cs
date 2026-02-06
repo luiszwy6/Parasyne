@@ -204,6 +204,17 @@ public class Enemy : MonoBehaviour
         if (animator != null) animator.SetFloat("Speed", v);
     }
 
+    public void SetAnimTakeDown(bool v)
+    {
+        if (animator != null) animator.SetBool("BeingTakenDown", v);
+    }
+    public void ForceTakeDown()
+    {
+
+        SetAnimTakeDown(true);
+
+    }
+
     [HideInInspector] public EnemyStateMachine stateMachine;
     [HideInInspector] public float stateTimer;
 

@@ -323,6 +323,7 @@ MonoBehaviour:
   stopRayStartHeight: 0.6
   stopRayEndHeight: 0.1
   stopPadding: 0.05
+  forceHideCrosshair: 0
   crosshairHeightMode: 1
   crosshairHeightOffset: 0.02
   hideWhenNotAiming: 1
@@ -2168,7 +2169,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eab78f020774fce4e934e00a4cf6c7e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LightnessDebugGUI
-  awareness: {fileID: 1711168057}
 --- !u!1 &179593999
 GameObject:
   m_ObjectHideFlags: 0
@@ -4141,8 +4141,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 284483074}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.38268346, y: 0, z: 0, w: 0.9238795}
-  m_LocalPosition: {x: -0.00000011920929, y: 4.7554274, z: -2.828427}
+  m_LocalRotation: {x: 0.3826831, y: 0, z: 0, w: 0.9238797}
+  m_LocalPosition: {x: -0.00000011920929, y: 4.7554255, z: -2.8284292}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4214,14 +4214,8 @@ MonoBehaviour:
   lockRoll: 1
   lockedRoll: 0
   switchCooldown: 1.25
+  triggerReporter: {fileID: 0}
   probeReference: {fileID: 1442048392}
-  target: {fileID: 1711168053}
-  wallMask:
-    serializedVersion: 2
-    m_Bits: 64
-  probeRadius: 0.25
-  probeDistance: 1
-  probeHeight: 1
 --- !u!1 &284490131
 GameObject:
   m_ObjectHideFlags: 0
@@ -7751,8 +7745,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 565128520}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.38267747, y: 0, z: 0, w: 0.923882}
-  m_LocalPosition: {x: -0.00000011920929, y: 4.7553906, z: -2.8284638}
+  m_LocalRotation: {x: 0.38265488, y: 0, z: 0, w: 0.92389137}
+  m_LocalPosition: {x: -0.00000011920929, y: 4.7552524, z: -2.8286018}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7779,14 +7773,8 @@ MonoBehaviour:
   lockRoll: 1
   lockedRoll: 0
   switchCooldown: 1.25
+  triggerReporter: {fileID: 0}
   probeReference: {fileID: 1442048392}
-  target: {fileID: 1711168053}
-  wallMask:
-    serializedVersion: 2
-    m_Bits: 64
-  probeRadius: 0.25
-  probeDistance: 1
-  probeHeight: 1
 --- !u!1 &571081765 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 342868b0cde5e9942ac660d06eac2c98, type: 3}
@@ -9849,22 +9837,80 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   player: {fileID: 1711168053}
   playerAwareness: {fileID: 1711168057}
+  playerVisionTarget: {fileID: 0}
+  playerAnimator: {fileID: 0}
+  crouchParam: IsCrouching
+  runParam: IsRunning
+  eyeTransform: {fileID: 0}
+  eyeOffset: {x: 0, y: 1.6, z: 0}
   viewRadius: 10
   viewAngle: 120
+  outerRadius: 10
+  outerAngle: 120
+  outerVerticalAngle: 60
+  innerRadius: 4
+  innerAngle: 160
+  innerVerticalAngle: 90
+  useVisionOcclusion: 1
+  visionObstructionMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  visionOcclusionPadding: 0.05
+  visionOcclusionTriggers: 1
+  debugDrawVisionRay: 1
+  debugRayDuration: 0
+  debugDrawEditorVisionRay: 1
+  debugEditorRayShowsOcclusion: 1
+  postureOuterRadiusMul_Stand: 1
+  postureOuterRadiusMul_Crouch: 0.75
+  postureOuterRadiusMul_Run: 1
+  postureInnerRadiusMul_Stand: 1
+  postureInnerRadiusMul_Crouch: 0.75
+  postureInnerRadiusMul_Run: 1
+  debugPosture: 0
   hearingRadius: 8
-  lightSensitivity: 2
-  lightAlert: 4
-  awareDarkVisionRadius: 1.5
-  alertVisionRadius_L0: 2
-  alertVisionRadius_L1: 3
-  alertVisionRadius_L2: 4
-  alertVisionRadius_L3: 6
-  alertVisionRadius_L4: 8
   noiseSensitivity: 2
+  lightScore:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  outerRingBonusByLight:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  innerRingBonusByLight:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  outerRingBonus: 1
+  innerRingBonus: 3
+  scoreToAware: 3
+  scoreToAlert: 5
+  forceToAlertByLight:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
   awareForgetTime: 5
   awareToCheckTime: 1.5
+  checkingTime: 2
   lastKnownPosition: {x: 0, y: 0, z: 0}
   hasLastKnownPosition: 0
+  lastSeenPosition: {x: 0, y: 0, z: 0}
+  hasLastSeenPosition: 0
+  lastHeardPosition: {x: 0, y: 0, z: 0}
+  hasLastHeardPosition: 0
+  patrolWaypoints: []
+  patrolIndex: 0
+  patrolWaitTime: 0.5
+  patrolLoop: 1
   agent: {fileID: 730293481}
   animator: {fileID: 0}
   runOnAlert: 1
@@ -14771,14 +14817,8 @@ MonoBehaviour:
   lockRoll: 1
   lockedRoll: 0
   switchCooldown: 1.25
+  triggerReporter: {fileID: 0}
   probeReference: {fileID: 1442048392}
-  target: {fileID: 1711168053}
-  wallMask:
-    serializedVersion: 2
-    m_Bits: 64
-  probeRadius: 0.25
-  probeDistance: 1
-  probeHeight: 1
 --- !u!4 &1118946804 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7236103262621854fa65370c46e0b0fe, type: 3}
@@ -18222,6 +18262,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: ba86767cae422704796f96915b303493, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 17b064d95ff64554791b4312da8ab852, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -23663,6 +23707,7 @@ MonoBehaviour:
   rollDistance: 3
   rollDuration: 0.75
   rollCooldown: 1.75
+  externalMovementLock: 0
 --- !u!114 &1711168057
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24499,22 +24544,80 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   player: {fileID: 1711168053}
   playerAwareness: {fileID: 1711168057}
+  playerVisionTarget: {fileID: 0}
+  playerAnimator: {fileID: 0}
+  crouchParam: IsCrouching
+  runParam: IsRunning
+  eyeTransform: {fileID: 0}
+  eyeOffset: {x: 0, y: 1.6, z: 0}
   viewRadius: 10
   viewAngle: 120
+  outerRadius: 10
+  outerAngle: 120
+  outerVerticalAngle: 60
+  innerRadius: 4
+  innerAngle: 160
+  innerVerticalAngle: 90
+  useVisionOcclusion: 1
+  visionObstructionMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  visionOcclusionPadding: 0.05
+  visionOcclusionTriggers: 1
+  debugDrawVisionRay: 1
+  debugRayDuration: 0
+  debugDrawEditorVisionRay: 1
+  debugEditorRayShowsOcclusion: 1
+  postureOuterRadiusMul_Stand: 1
+  postureOuterRadiusMul_Crouch: 0.75
+  postureOuterRadiusMul_Run: 1
+  postureInnerRadiusMul_Stand: 1
+  postureInnerRadiusMul_Crouch: 0.75
+  postureInnerRadiusMul_Run: 1
+  debugPosture: 0
   hearingRadius: 8
-  lightSensitivity: 2
-  lightAlert: 4
-  awareDarkVisionRadius: 1.5
-  alertVisionRadius_L0: 2
-  alertVisionRadius_L1: 3
-  alertVisionRadius_L2: 4
-  alertVisionRadius_L3: 6
-  alertVisionRadius_L4: 8
   noiseSensitivity: 2
+  lightScore:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  outerRingBonusByLight:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  innerRingBonusByLight:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  outerRingBonus: 1
+  innerRingBonus: 3
+  scoreToAware: 3
+  scoreToAlert: 5
+  forceToAlertByLight:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
   awareForgetTime: 5
   awareToCheckTime: 1.5
+  checkingTime: 2
   lastKnownPosition: {x: 0, y: 0, z: 0}
   hasLastKnownPosition: 0
+  lastSeenPosition: {x: 0, y: 0, z: 0}
+  hasLastSeenPosition: 0
+  lastHeardPosition: {x: 0, y: 0, z: 0}
+  hasLastHeardPosition: 0
+  patrolWaypoints: []
+  patrolIndex: 0
+  patrolWaitTime: 0.5
+  patrolLoop: 1
   agent: {fileID: 1784817901}
   animator: {fileID: 0}
   runOnAlert: 1
@@ -25150,22 +25253,80 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   player: {fileID: 1711168053}
   playerAwareness: {fileID: 1711168057}
+  playerVisionTarget: {fileID: 0}
+  playerAnimator: {fileID: 0}
+  crouchParam: IsCrouching
+  runParam: IsRunning
+  eyeTransform: {fileID: 0}
+  eyeOffset: {x: 0, y: 1.6, z: 0}
   viewRadius: 10
   viewAngle: 120
+  outerRadius: 10
+  outerAngle: 120
+  outerVerticalAngle: 60
+  innerRadius: 4
+  innerAngle: 160
+  innerVerticalAngle: 90
+  useVisionOcclusion: 1
+  visionObstructionMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  visionOcclusionPadding: 0.05
+  visionOcclusionTriggers: 1
+  debugDrawVisionRay: 1
+  debugRayDuration: 0
+  debugDrawEditorVisionRay: 1
+  debugEditorRayShowsOcclusion: 1
+  postureOuterRadiusMul_Stand: 1
+  postureOuterRadiusMul_Crouch: 0.75
+  postureOuterRadiusMul_Run: 1
+  postureInnerRadiusMul_Stand: 1
+  postureInnerRadiusMul_Crouch: 0.75
+  postureInnerRadiusMul_Run: 1
+  debugPosture: 0
   hearingRadius: 8
-  lightSensitivity: 2
-  lightAlert: 4
-  awareDarkVisionRadius: 1.5
-  alertVisionRadius_L0: 0.75
-  alertVisionRadius_L1: 1.75
-  alertVisionRadius_L2: 6
-  alertVisionRadius_L3: 8
-  alertVisionRadius_L4: 10
   noiseSensitivity: 2
+  lightScore:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  outerRingBonusByLight:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  innerRingBonusByLight:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  outerRingBonus: 1
+  innerRingBonus: 3
+  scoreToAware: 3
+  scoreToAlert: 5
+  forceToAlertByLight:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
   awareForgetTime: 5
   awareToCheckTime: 1
+  checkingTime: 2
   lastKnownPosition: {x: 0, y: 0, z: 0}
   hasLastKnownPosition: 0
+  lastSeenPosition: {x: 0, y: 0, z: 0}
+  hasLastSeenPosition: 0
+  lastHeardPosition: {x: 0, y: 0, z: 0}
+  hasLastHeardPosition: 0
+  patrolWaypoints: []
+  patrolIndex: 0
+  patrolWaitTime: 0.5
+  patrolLoop: 1
   agent: {fileID: 1808793057}
   animator: {fileID: 1808793061}
   runOnAlert: 1
@@ -25601,6 +25762,8 @@ MonoBehaviour:
   defaultCamera: {fileID: 1115585046}
   activePriority: 20
   inactivePriority: 10
+  perspectiveCameras: []
+  orthographicCameras: []
 --- !u!4 &1843779068 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7236103262621854fa65370c46e0b0fe, type: 3}
