@@ -30,15 +30,18 @@ public class Enemy : MonoBehaviour
     [Range(0, 360)] public float viewAngle = 120f;
 
     [Header("Vision Rings (Base)")]
+    // Outer ring: large cone = "soft detection" (low bonus, farther range)
     public float outerRadius = 10f;
     [Range(0, 360)] public float outerAngle = 120f;
     [Range(0, 180)] public float outerVerticalAngle = 60f;
 
+    // Inner ring: tighter/stronger cone = "strong detection" (higher bonus, closer range)
     public float innerRadius = 4f;
     [Range(0, 360)] public float innerAngle = 160f;
     [Range(0, 180)] public float innerVerticalAngle = 90f;
 
     [Header("Vision Occlusion (raycast)")]
+    // If enabled: LOS must be clear (raycast) to count as "seen"
     public bool useVisionOcclusion = true;
     public LayerMask visionObstructionMask = ~0;
     public float visionOcclusionPadding = 0.05f;
@@ -55,6 +58,7 @@ public class Enemy : MonoBehaviour
     public enum PlayerPosture { Stand = 0, Crouch = 1, Run = 2 }
 
     [Header("Vision Posture Multipliers (reserved)")]
+    // Posture scaling: shrink/enlarge effective detection radii based on posture
     public float postureOuterRadiusMul_Stand = 1.0f;
     public float postureOuterRadiusMul_Crouch = 0.75f;
     public float postureOuterRadiusMul_Run = 1.0f;
@@ -66,38 +70,37 @@ public class Enemy : MonoBehaviour
     [Tooltip("Used only if PlayerAwareness doesn't provide posture and playerAnimator is null.")]
     public PlayerPosture debugPosture = PlayerPosture.Stand;
 
-    // -------------------- HEARING (UPDATED) --------------------
+    // -------------------- HEARING --------------------
 
     [Header("Hearing")]
-    [Tooltip("Enemy hearing radius (circle). Must overlap player's noise rings to trigger.")]
+    // Hearing is based on overlap with player's noise rings (distance-attenuation model)
     public float hearingRadius = 8f;
 
     [Header("Noise sensitivity (0-2)")]
-    [Tooltip("Min perceived noise (after ring + wall attenuation) to trigger investigation.")]
+    // Enemy triggers only if perceived noise >= this threshold
     [Range(0, 2)] public int noiseSensitivity = 2;
 
     [Header("Sound Occlusion (-1)")]
-    [Tooltip("Layers that block sound (Walls/Environment). Exclude Player/Enemy.")]
+    // Simple occlusion: if a wall blocks LOS, perceived noise is reduced by 1
     public LayerMask soundObstructionMask = ~0;
-
     public QueryTriggerInteraction soundOcclusionTriggers = QueryTriggerInteraction.Ignore;
 
     [Header("Sound Reaction")]
-    [Tooltip("Delay before switching to CHECK after hearing a suspicious sound.")]
     public float soundReactionTime = 0.35f;
-
-    [Tooltip("How fast the enemy turns its head/body toward the sound direction.")]
+    public float soundPreTurnDelay = 0.12f;
     public float soundTurnSpeed = 10f;
 
-
-    // Cached for ring attenuation
+    // Cached settings used for noise ring attenuation queries
     private PlayerNoiseSettings playerNoiseSettings;
 
+    // -------------------- VISION SCORE (lightness + ring bonus) --------------------
 
     [Header("Vision Score (0-4 lightness)")]
+    // Base score by light level (PlayerAwareness.lightness)
     public float[] lightScore = new float[5] { 0f, 1f, 2f, 3f, 4f };
 
     [Header("Ring Bonus (per lightness, 0-4)")]
+    // Extra score added if in outer/inner ring at a given light level
     public float[] outerRingBonusByLight = new float[5] { 0f, 0f, 0f, 0f, 0f };
     public float[] innerRingBonusByLight = new float[5] { 0f, 0f, 0f, 0f, 0f };
 
@@ -106,10 +109,12 @@ public class Enemy : MonoBehaviour
     public float innerRingBonus = 3f;
 
     [Header("Vision Score Thresholds")]
+    // Score gates used by FSM states (e.g., Patrol->Aware->Alert)
     public float scoreToAware = 3f;
     public float scoreToAlert = 5f;
 
     [Header("Force To Alert (per lightness)")]
+    // Optional: "instant alert" if player is within a forced radius for a light level
     public float[] forceToAlertByLight = new float[5] { 0f, 0f, 0f, 0f, 0f };
 
     [Header("State timers")]
@@ -124,6 +129,7 @@ public class Enemy : MonoBehaviour
     public bool hasLastKnownPosition = false;
 
     [Header("Investigation Memory")]
+    // Separate memory buckets for sight vs sound investigation
     public Vector3 lastSeenPosition;
     public bool hasLastSeenPosition = false;
 
@@ -131,6 +137,7 @@ public class Enemy : MonoBehaviour
     public bool hasLastHeardPosition = false;
 
     [Header("Aware Trigger")]
+    // Helps FSM decide which "aware" behavior to play (heard vs seen)
     [HideInInspector] public bool lastAwareTriggerWasSound = false;
 
     [Header("Patrol")]
@@ -150,19 +157,19 @@ public class Enemy : MonoBehaviour
     public float alertWalkSpeed = 2.0f;
     public float alertRunSpeed = 4.0f;
 
-    public void SetAnimRunning(bool v)
-    {
-        if (animator != null) animator.SetBool("IsRunning", v);
-    }
+    [Header("Takedown")]
+    public string takedownParam = "BeingTakenDown";
 
-    public void SetAnimAware(bool v)
-    {
-        if (animator != null) animator.SetBool("IsAware", v);
-    }
+    // Animator helpers (kept minimal for state code readability)
+    public void SetAnimRunning(bool v) { if (animator != null) animator.SetBool("IsRunning", v); }
+    public void SetAnimAware(bool v) { if (animator != null) animator.SetBool("IsAware", v); }
+    public void SetAnimSpeed(float v) { if (animator != null) animator.SetFloat("Speed", v); }
+    public void SetAnimTakeDown(bool v) { if (animator != null) animator.SetBool("BeingTakenDown", v); }
 
-    public void SetAnimSpeed(float v)
+    public void ForceTakeDown()
     {
-        if (animator != null) animator.SetFloat("Speed", v);
+        SetAnimTakeDown(true);
+        stateMachine.ChangeState(new EnemyTakeDownState(this));
     }
 
     [HideInInspector] public EnemyStateMachine stateMachine;
@@ -176,12 +183,13 @@ public class Enemy : MonoBehaviour
         debugRenderer = GetComponentInChildren<Renderer>();
         if (!agent) agent = GetComponent<NavMeshAgent>();
 
+        // Backward-compat defaults: if new params not set, fall back to legacy ones
         if (outerRadius <= 0f) outerRadius = viewRadius;
         if (outerAngle <= 0f) outerAngle = viewAngle;
 
         EnsureScoreArrays();
 
-        // Cache PlayerNoiseSettings for ring hearing.
+        // Cache PlayerNoiseSettings for hearing checks
         if (player != null)
             playerNoiseSettings = player.GetComponent<PlayerNoiseSettings>();
     }
@@ -198,6 +206,7 @@ public class Enemy : MonoBehaviour
 
     #region Perception helpers
 
+    // Pull current perception values from PlayerAwareness (light/noise are integer bands)
     public int CurrentLightLevel() => playerAwareness ? playerAwareness.lightness : 0;
     public int CurrentNoiseLevel() => playerAwareness ? playerAwareness.noisiness : 0;
 
@@ -207,6 +216,7 @@ public class Enemy : MonoBehaviour
         return transform.position + eyeOffset;
     }
 
+    // Eye basis vectors used for 3D cone checks (yaw/pitch)
     private Vector3 EyeForward => (eyeTransform != null ? eyeTransform.forward : transform.forward).normalized;
     private Vector3 EyeRight => (eyeTransform != null ? eyeTransform.right : transform.right).normalized;
     private Vector3 EyeUp => (eyeTransform != null ? eyeTransform.up : transform.up).normalized;
@@ -220,6 +230,7 @@ public class Enemy : MonoBehaviour
 
     public PlayerPosture CurrentPosture()
     {
+        // Primary source: playerAnimator bool params
         if (playerAnimator != null)
         {
             bool crouching = (!string.IsNullOrEmpty(crouchParam)) && playerAnimator.GetBool(crouchParam);
@@ -230,6 +241,7 @@ public class Enemy : MonoBehaviour
             return PlayerPosture.Stand;
         }
 
+        // Secondary source: reflect posture from PlayerAwareness (if it exists)
         if (!playerAwareness) return debugPosture;
 
         var t = playerAwareness.GetType();
@@ -253,6 +265,7 @@ public class Enemy : MonoBehaviour
         return debugPosture;
     }
 
+    // Effective ring radii after posture multipliers
     public float GetOuterRadiusEffective()
     {
         var posture = CurrentPosture();
@@ -275,6 +288,7 @@ public class Enemy : MonoBehaviour
         return Mathf.Max(0f, innerRadius * mul);
     }
 
+    // Treat hits on player or its child transforms as "not blocked"
     private bool IsHitPlayerOrVisionTarget(Transform hitT)
     {
         if (hitT == null) return false;
@@ -288,6 +302,7 @@ public class Enemy : MonoBehaviour
         return false;
     }
 
+    // LOS raycast from eye to player vision point (used by vision cones)
     public bool HasLineOfSightToPlayerVisionPoint(float maxDistance)
     {
         if (!useVisionOcclusion) return true;
@@ -333,6 +348,7 @@ public class Enemy : MonoBehaviour
         return !blocked;
     }
 
+    // 3D cone check using yaw/pitch in eye space, plus LOS test
     public bool IsPlayerInViewCone3DFromEye(float radius, float horizontalAngleDeg, float verticalAngleDeg)
     {
         if (!player) return false;
@@ -374,6 +390,7 @@ public class Enemy : MonoBehaviour
         return IsPlayerInViewCone3DFromEye(GetInnerRadiusEffective(), innerAngle, innerVerticalAngle);
     }
 
+    // Core vision scoring: lightness base + ring bonus (inner > outer)
     public float GetVisionScore(out bool inOuter, out bool inInner)
     {
         EnsureScoreArrays();
@@ -396,6 +413,7 @@ public class Enemy : MonoBehaviour
         return score;
     }
 
+    // Optional "hard trigger" for alert at close range per lightness
     public bool IsForceAlertTriggered()
     {
         if (!player) return false;
@@ -409,9 +427,9 @@ public class Enemy : MonoBehaviour
         return IsPlayerInViewCone3DFromEye(r, innerAngle, innerVerticalAngle);
     }
 
-    // -------------------- HEARING API (UPDATED) --------------------
+    // -------------------- HEARING --------------------
 
-    // True if enemy hearing circle overlaps ANY player noise ring.
+    // Ring check: is enemy inside any player noise ring at all?
     public bool IsPlayerInHearingRange()
     {
         if (!player) return false;
@@ -425,7 +443,7 @@ public class Enemy : MonoBehaviour
         return atten != int.MaxValue;
     }
 
-    // Perceived noise after: ring attenuation (0/1/2) + wall attenuation (-1).
+    // Perceived noise = baseNoise - ringAttenuation - (wall? 1 : 0)
     public int GetPerceivedNoiseLevel()
     {
         if (!player) return 0;
@@ -449,6 +467,7 @@ public class Enemy : MonoBehaviour
         return perceived;
     }
 
+    // Simple "one wall = -1" occlusion using a linecast
     private bool IsSoundBlockedByWall()
     {
         if (!player) return false;
@@ -474,6 +493,7 @@ public class Enemy : MonoBehaviour
 
     // -------------------- Investigation memory --------------------
 
+    // Store investigation points projected to NavMesh (so agent can path to it)
     public void SetLastSeenPosition(Vector3 pos)
     {
         pos = ProjectPointToNavMesh(pos);
@@ -525,6 +545,7 @@ public class Enemy : MonoBehaviour
         return pos;
     }
 
+    // Ensure arrays exist and are exactly length 5 (indexed by lightness 0..4)
     private void EnsureScoreArrays()
     {
         if (lightScore == null || lightScore.Length != 5) lightScore = new float[5] { 0f, 1f, 2f, 3f, 4f };
@@ -557,6 +578,7 @@ public class Enemy : MonoBehaviour
         Vector3 r = (eyeTransform != null ? eyeTransform.right : transform.right).normalized;
         Vector3 u = (eyeTransform != null ? eyeTransform.up : transform.up).normalized;
 
+        // Visualize outer/inner vision cones in Scene view (editor-only).
         DrawVisionCone3DWire(
             eye, f, r, u,
             Application.isPlaying ? GetOuterRadiusEffective() : outerRadius,
@@ -620,6 +642,7 @@ public class Enemy : MonoBehaviour
         float hHalf = horizontalAngleDeg * 0.5f * Mathf.Deg2Rad;
         float vHalf = verticalAngleDeg * 0.5f * Mathf.Deg2Rad;
 
+        // Converts (yaw, pitch) in eye-space to a world direction.
         Vector3 Dir(float yawRad, float pitchRad)
         {
             float cy = Mathf.Cos(yawRad);

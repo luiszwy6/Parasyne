@@ -7,9 +7,11 @@ using UnityEngine;
 
 public class EnemyAwareState : EnemyState
 {
-    // Sound reaction: turn to the sound first, then wait, then CHECK.
+    // Sound reaction: optional pre-turn delay, then turn to the sound, then wait, then CHECK.
     private bool reactingToSound = false;
-    private float soundReactTimer = 0f;
+
+    private float soundPreTurnTimer = 0f;   // NEW: delay before turning
+    private float soundReactTimer = 0f;     // existing: reaction time after turning starts
     private Vector3 soundTargetPos;
 
     private bool soundLatchToCheck = false;
@@ -25,6 +27,7 @@ public class EnemyAwareState : EnemyState
         enemy.stateTimer = 0f;
 
         reactingToSound = false;
+        soundPreTurnTimer = 0f;   // NEW
         soundReactTimer = 0f;
         soundTargetPos = default;
         soundLatchToCheck = false;
@@ -58,7 +61,6 @@ public class EnemyAwareState : EnemyState
         // --- Instant escalation to ALERT ---
         if (forceAlert || score >= enemy.scoreToAlert)
         {
-            // Save last seen point for investigation/chase logic.
             if (enemy.player != null)
                 enemy.SetLastSeenPosition(enemy.GetPlayerVisionPoint());
 
@@ -68,11 +70,20 @@ public class EnemyAwareState : EnemyState
             return;
         }
 
-        // --- If sound was latched, do reaction then CHECK (no need to keep hearing) ---
+        // --- If sound was latched, do: pre-turn delay -> turn -> reaction time -> CHECK ---
         if (soundLatchToCheck)
         {
+            // 1) Pre-turn hesitation (no turning yet)
+            if (soundPreTurnTimer < enemy.soundPreTurnDelay)
+            {
+                soundPreTurnTimer += Time.deltaTime;
+                return;
+            }
+
+            // 2) Turn toward sound target
             TurnToward(soundTargetPos);
 
+            // 3) Reaction time after turning starts
             soundReactTimer += Time.deltaTime;
             if (soundReactTimer >= enemy.soundReactionTime)
             {
@@ -95,7 +106,6 @@ public class EnemyAwareState : EnemyState
 
         if (!visionSuspicious && !audioSuspicious)
         {
-            // No signal -> calm down and return to Patrol.
             enemy.lastAwareTriggerWasSound = false;
             enemy.stateTimer = 0f;
             enemy.SetAnimAware(false);
@@ -133,6 +143,9 @@ public class EnemyAwareState : EnemyState
     {
         reactingToSound = true;
         soundLatchToCheck = true;
+
+        // NEW: reset both timers
+        soundPreTurnTimer = 0f;
         soundReactTimer = 0f;
 
         // Lock to the sound position at trigger time.

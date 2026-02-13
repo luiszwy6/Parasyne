@@ -12,6 +12,10 @@ public class NightVisionToggle : MonoBehaviour
     [SerializeField] private VolumeProfile normalProfile;
     [SerializeField] private VolumeProfile nightVisionProfile;
 
+    [Header("Night Vision Light (Child)")]
+    [SerializeField] private Light nvDirectionalLight;
+    [SerializeField] private bool autoFindChildLight = true;
+
     [Header("Input")]
     [SerializeField] private string nightVisionActionName = "NightVision";
 
@@ -29,6 +33,19 @@ public class NightVisionToggle : MonoBehaviour
     {
         if (playerInput == null) playerInput = GetComponent<PlayerInput>();
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
+
+        if (autoFindChildLight && nvDirectionalLight == null)
+        {
+            var lights = GetComponentsInChildren<Light>(true);
+            foreach (var l in lights)
+            {
+                if (l.name.Contains("NV"))
+                {
+                    nvDirectionalLight = l;
+                    break;
+                }
+            }
+        }
 
         if (playerInput == null || volume == null)
         {
@@ -73,6 +90,9 @@ public class NightVisionToggle : MonoBehaviour
     private void ApplyProfileAndAudio(bool playSound)
     {
         volume.profile = enabledNV ? nightVisionProfile : normalProfile;
+
+        if (nvDirectionalLight != null)
+            nvDirectionalLight.enabled = enabledNV;
 
         if (!playSound || audioSource == null) return;
 
