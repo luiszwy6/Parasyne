@@ -1,34 +1,30 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// PlayerCrossHairSettings: computes a world-space aim point and direction.
-// Supports:
-// - Mouse: screen raycast to ground
-// - Gamepad: stick direction relative to camera
-// Optional clamps and wall-stopping keep aim consistent.
-
 public class PlayerCrossHairSettings : MonoBehaviour
 {
     [Header("References")]
-    [Tooltip("Aim settings on the player.")]
     public PlayerAimSettings aimSettings;
-
-    [Tooltip("World-space crosshair object (independent object).")]
     public Transform crosshair;
-
-    [Tooltip("Optional: eye/head reference for crosshair height.")]
     public Transform playerEyePoint;
 
-    [Header("Aim Ground Raycast (Mouse)")]
+    [Header("TPS")]
+    public bool tpsMode = false;
+
+    [Header("Aim Sampling (Mouse Raycast)")]
+    public LayerMask mouseAimLayers = 0;
+    public LayerMask mouseGroundLayers = ~0;
+    public float mouseRayMaxDistance = 200f;
+
+    [Header("Aim Distance (Gamepad Fallback)")]
     public float crosshairDistance = 4f;
-    public LayerMask crosshairGroundMask = ~0;
 
     [Header("Aim Range Limit (centered on Player)")]
     public bool limitAimRadius = true;
     public float maxAimRadius = 6f;
 
     [Header("Aim Pivot (camera follow target, centered on Player)")]
-    public Transform aimPivot;            // usually on player, but you can still reference it here
+    public Transform aimPivot;
     public float aimPivotHeight = 0.0f;
     public float pivotFollowSpeed = 20f;
 
@@ -42,13 +38,11 @@ public class PlayerCrossHairSettings : MonoBehaviour
     [Header("External Override")]
     public bool forceHideCrosshair = false;
 
-
-
     public enum CrosshairHeightMode
     {
-        Ground,          // use aim point y + offset (mouse hit y)
-        EyePointHeight,  // force y = eye y + offset
-        EyePointPlane    // same as EyePointHeight (kept for clarity)
+        Ground,
+        EyePointHeight,
+        EyePointPlane
     }
 
     [Header("Crosshair Height")]
@@ -63,14 +57,24 @@ public class PlayerCrossHairSettings : MonoBehaviour
     public float gizmoHeightOffset = 0.05f;
     [Range(12, 128)] public int gizmoSegments = 48;
 
-    // Outputs
+    [Header("Gizmos (Aim Rays)")]
+    public bool drawAimRaysGizmo = true;
+    public Color gizmoPlayerToAimColor = new Color(1f, 0.35f, 0.1f, 0.9f);
+    public Color gizmoScreenRayColor = new Color(0.1f, 1f, 0.2f, 0.9f);
+    public bool gizmoOnlyWhenAiming = true;
+
     public Vector3 AimPointClamped { get; private set; }
-    public Vector3 AimWorldDir { get; private set; } // XZ dir normalized
+    public Vector3 AimWorldDir { get; private set; }
     public bool HasMouseAimPoint { get; private set; }
     public Vector3 MouseAimPoint { get; private set; }
 
-    // cached for gizmos (because gizmos can't take parameters)
     Transform _lastActor;
+    bool _lastIsAiming;
+
+    bool _hasLastScreenRay;
+    Vector3 _lastScreenRayOrigin;
+    Vector3 _lastScreenRayDir;
+    float _lastScreenRayDrawDist;
 
     void Reset()
     {
@@ -89,10 +93,16 @@ public class PlayerCrossHairSettings : MonoBehaviour
     )
     {
         _lastActor = actor;
+        _lastIsAiming = isAiming;
 
         AimWorldDir = Vector3.zero;
         HasMouseAimPoint = false;
         MouseAimPoint = Vector3.zero;
+
+        _hasLastScreenRay = false;
+        _lastScreenRayOrigin = Vector3.zero;
+        _lastScreenRayDir = Vector3.forward;
+        _lastScreenRayDrawDist = 0f;
 
         if (!isAiming)
         {
@@ -104,34 +114,51 @@ public class PlayerCrossHairSettings : MonoBehaviour
 
         Vector3 desiredAimPoint = actor.position;
 
-        // 1) mouse -> raycast ground
         if (usingMouseScheme && aimCamera != null && Mouse.current != null)
         {
-            Vector2 mousePos = Mouse.current.position.ReadValue();
-            Ray ray = aimCamera.ScreenPointToRay(mousePos);
+            Vector2 screenPos = tpsMode
+                ? new Vector2(Screen.width * 0.5f, Screen.height * 0.5f)
+                : Mouse.current.position.ReadValue();
 
-            if (Physics.Raycast(ray, out RaycastHit hit, 200f, crosshairGroundMask, QueryTriggerInteraction.Ignore))
+            Ray ray = aimCamera.ScreenPointToRay(screenPos);
+
+            _hasLastScreenRay = true;
+            _lastScreenRayOrigin = ray.origin;
+            _lastScreenRayDir = ray.direction.normalized;
+
+            if (mouseAimLayers.value != 0 &&
+                Physics.Raycast(ray, out RaycastHit hit, mouseRayMaxDistance, mouseAimLayers, QueryTriggerInteraction.Ignore))
             {
                 MouseAimPoint = hit.point;
                 HasMouseAimPoint = true;
                 desiredAimPoint = MouseAimPoint;
+                _lastScreenRayDrawDist = hit.distance;
+            }
+            else if (mouseGroundLayers.value != 0 &&
+                     Physics.Raycast(ray, out RaycastHit groundHit, mouseRayMaxDistance, mouseGroundLayers, QueryTriggerInteraction.Ignore))
+            {
+                MouseAimPoint = groundHit.point;
+                HasMouseAimPoint = true;
+                desiredAimPoint = MouseAimPoint;
+                _lastScreenRayDrawDist = groundHit.distance;
             }
             else
             {
-                desiredAimPoint = actor.position + actor.forward * crosshairDistance;
+                float d = tpsMode ? mouseRayMaxDistance : Mathf.Max(1f, crosshairDistance);
+                desiredAimPoint = ray.origin + ray.direction * d;
+                _lastScreenRayDrawDist = d;
             }
         }
         else
         {
-            // 2) gamepad -> right stick + camera basis
             Camera camForStick = cameraTransform != null ? cameraTransform.GetComponent<Camera>() : null;
 
             if (lookInput.sqrMagnitude > 0.01f && camForStick != null)
             {
                 Vector3 camForward = camForStick.transform.forward;
-                Vector3 camRight   = camForStick.transform.right;
+                Vector3 camRight = camForStick.transform.right;
                 camForward.y = 0f;
-                camRight.y   = 0f;
+                camRight.y = 0f;
                 camForward.Normalize();
                 camRight.Normalize();
 
@@ -154,15 +181,11 @@ public class PlayerCrossHairSettings : MonoBehaviour
             }
         }
 
-        // 3) clamp by radius around player (XZ)
         Vector3 aimPoint = ClampPointToRadius(actor.position, desiredAimPoint, maxAimRadius, limitAimRadius);
-
-        // 4) stop by wall layer (ray from player towards aim point)
         aimPoint = StopAimPointByLayer(actor, aimPoint);
 
         AimPointClamped = aimPoint;
 
-        // 5) compute aim dir on XZ
         Vector3 dirToAim = AimPointClamped - actor.position;
         dirToAim.y = 0f;
         if (dirToAim.sqrMagnitude > 0.001f)
@@ -176,17 +199,8 @@ public class PlayerCrossHairSettings : MonoBehaviour
     {
         if (aimPivot == null) return;
 
-        Vector3 targetPos;
-        if (isAiming)
-        {
-            targetPos = AimPointClamped;
-            targetPos.y = actor.position.y + aimPivotHeight;
-        }
-        else
-        {
-            targetPos = actor.position;
-            targetPos.y = actor.position.y + aimPivotHeight;
-        }
+        Vector3 targetPos = isAiming ? AimPointClamped : actor.position;
+        targetPos.y = actor.position.y + aimPivotHeight;
 
         float t = 1f - Mathf.Exp(-pivotFollowSpeed * Mathf.Max(0.0001f, dt));
         aimPivot.position = Vector3.Lerp(aimPivot.position, targetPos, t);
@@ -196,25 +210,7 @@ public class PlayerCrossHairSettings : MonoBehaviour
     {
         if (crosshair == null) return;
 
-        // External override: hide crosshair regardless of aiming state.
-        if (forceHideCrosshair)
-        {
-            if (crosshair.gameObject.activeSelf)
-            crosshair.gameObject.SetActive(false);
-            return;
-        }
-
-
-        if (hideWhenNotAiming && !isAiming)
-        {
-            if (crosshair.gameObject.activeSelf) crosshair.gameObject.SetActive(false);
-            return;
-        }
-
-        if (!crosshair.gameObject.activeSelf) crosshair.gameObject.SetActive(true);
-
         Vector3 pos = AimPointClamped;
-
         float eyeY = (playerEyePoint != null) ? playerEyePoint.position.y : actor.position.y;
 
         switch (crosshairHeightMode)
@@ -222,6 +218,7 @@ public class PlayerCrossHairSettings : MonoBehaviour
             case CrosshairHeightMode.Ground:
                 pos.y = pos.y + crosshairHeightOffset;
                 break;
+
             case CrosshairHeightMode.EyePointHeight:
             case CrosshairHeightMode.EyePointPlane:
                 pos.y = eyeY + crosshairHeightOffset;
@@ -249,7 +246,7 @@ public class PlayerCrossHairSettings : MonoBehaviour
         if (Physics.Raycast(start, dir, out RaycastHit hit, dist, stopLayers, QueryTriggerInteraction.Ignore))
         {
             Vector3 p = hit.point - dir * Mathf.Max(0f, stopPadding);
-            p.y = aimPoint.y; // keep original y for later height mode
+            p.y = aimPoint.y;
             return p;
         }
 
@@ -270,6 +267,31 @@ public class PlayerCrossHairSettings : MonoBehaviour
         Vector3 clamped = center + v;
         clamped.y = point.y;
         return clamped;
+    }
+
+    void OnDrawGizmos()
+    {
+        if (!drawAimRaysGizmo) return;
+
+        if (gizmoOnlyWhenAiming && Application.isPlaying && !_lastIsAiming)
+            return;
+
+        if (_lastActor == null) return;
+
+        Gizmos.color = gizmoPlayerToAimColor;
+        Vector3 start = _lastActor.position + Vector3.up * stopRayStartHeight;
+        Vector3 end = AimPointClamped;
+        Gizmos.DrawLine(start, end);
+        Gizmos.DrawWireSphere(end, 0.08f);
+
+        if (_hasLastScreenRay)
+        {
+            Gizmos.color = gizmoScreenRayColor;
+            float d = Mathf.Max(0.1f, _lastScreenRayDrawDist);
+            Vector3 rayEnd = _lastScreenRayOrigin + _lastScreenRayDir * d;
+            Gizmos.DrawLine(_lastScreenRayOrigin, rayEnd);
+            Gizmos.DrawWireSphere(rayEnd, 0.05f);
+        }
     }
 
     void OnDrawGizmosSelected()
@@ -296,7 +318,7 @@ public class PlayerCrossHairSettings : MonoBehaviour
             prev = next;
         }
 
-        if (Application.isPlaying && actor != null)
+        if (Application.isPlaying)
         {
             Vector3 p = AimPointClamped;
             p.y = center.y;
