@@ -16,6 +16,8 @@ public class PlayerCrossHairSettings : MonoBehaviour
     public LayerMask mouseGroundLayers = ~0;
     public float mouseRayMaxDistance = 200f;
 
+    [SerializeField] private QueryTriggerInteraction mouseRayTriggerInteraction = QueryTriggerInteraction.Ignore;
+
     [Header("Aim Distance (Gamepad Fallback)")]
     public float crosshairDistance = 4f;
 
@@ -34,6 +36,8 @@ public class PlayerCrossHairSettings : MonoBehaviour
     public float stopRayStartHeight = 0.6f;
     public float stopRayEndHeight = 0.1f;
     public float stopPadding = 0.05f;
+
+    [SerializeField] private QueryTriggerInteraction stopRayTriggerInteraction = QueryTriggerInteraction.Ignore;
 
     [Header("External Override")]
     public bool forceHideCrosshair = false;
@@ -127,7 +131,7 @@ public class PlayerCrossHairSettings : MonoBehaviour
             _lastScreenRayDir = ray.direction.normalized;
 
             if (mouseAimLayers.value != 0 &&
-                Physics.Raycast(ray, out RaycastHit hit, mouseRayMaxDistance, mouseAimLayers, QueryTriggerInteraction.Ignore))
+                Physics.Raycast(ray, out RaycastHit hit, mouseRayMaxDistance, mouseAimLayers, mouseRayTriggerInteraction))
             {
                 MouseAimPoint = hit.point;
                 HasMouseAimPoint = true;
@@ -135,7 +139,7 @@ public class PlayerCrossHairSettings : MonoBehaviour
                 _lastScreenRayDrawDist = hit.distance;
             }
             else if (mouseGroundLayers.value != 0 &&
-                     Physics.Raycast(ray, out RaycastHit groundHit, mouseRayMaxDistance, mouseGroundLayers, QueryTriggerInteraction.Ignore))
+                     Physics.Raycast(ray, out RaycastHit groundHit, mouseRayMaxDistance, mouseGroundLayers, mouseRayTriggerInteraction))
             {
                 MouseAimPoint = groundHit.point;
                 HasMouseAimPoint = true;
@@ -232,7 +236,9 @@ public class PlayerCrossHairSettings : MonoBehaviour
     {
         if (!stopByLayer || stopLayers.value == 0) return aimPoint;
 
-        Vector3 start = actor.position + Vector3.up * stopRayStartHeight;
+        Vector3 start = (playerEyePoint != null)
+            ? playerEyePoint.position
+            : actor.position + Vector3.up * stopRayStartHeight;
 
         Vector3 end = aimPoint;
         end.y = actor.position.y + stopRayEndHeight;
@@ -243,7 +249,7 @@ public class PlayerCrossHairSettings : MonoBehaviour
 
         dir /= dist;
 
-        if (Physics.Raycast(start, dir, out RaycastHit hit, dist, stopLayers, QueryTriggerInteraction.Ignore))
+        if (Physics.Raycast(start, dir, out RaycastHit hit, dist, stopLayers, stopRayTriggerInteraction))
         {
             Vector3 p = hit.point - dir * Mathf.Max(0f, stopPadding);
             p.y = aimPoint.y;
@@ -279,7 +285,9 @@ public class PlayerCrossHairSettings : MonoBehaviour
         if (_lastActor == null) return;
 
         Gizmos.color = gizmoPlayerToAimColor;
-        Vector3 start = _lastActor.position + Vector3.up * stopRayStartHeight;
+        Vector3 start = (playerEyePoint != null)
+            ? playerEyePoint.position
+            : _lastActor.position + Vector3.up * stopRayStartHeight;
         Vector3 end = AimPointClamped;
         Gizmos.DrawLine(start, end);
         Gizmos.DrawWireSphere(end, 0.08f);

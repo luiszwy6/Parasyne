@@ -8,24 +8,17 @@ public class UICrosshairFollowMouse : MonoBehaviour
     [SerializeField] private RectTransform ui;
     [SerializeField] private Canvas canvas;
 
-    [Header("Aim Gate (Optional)")]
-    [SerializeField] private bool onlyShowWhileAiming = false;
-    [SerializeField] private PlayerInput playerInput;
-    [SerializeField] private string aimActionName = "Aim";
-
     [Header("Options")]
     [SerializeField] private bool hideWhenOffscreen = true;
     [SerializeField] private bool clampToScreenWhenOffscreen = true;
     [SerializeField] private float screenPadding = 8f;
 
     private CanvasGroup cg;
-    private InputAction aimAction;
 
     private void Reset()
     {
         ui = GetComponent<RectTransform>();
         canvas = GetComponentInParent<Canvas>();
-        playerInput = FindFirstObjectByType<PlayerInput>();
     }
 
     private void Awake()
@@ -35,38 +28,13 @@ public class UICrosshairFollowMouse : MonoBehaviour
 
         cg = GetComponent<CanvasGroup>();
         if (cg == null) cg = gameObject.AddComponent<CanvasGroup>();
-
-        ResolveAimAction();
-    }
-
-    private void OnEnable()
-    {
-        ResolveAimAction();
-    }
-
-    private void ResolveAimAction()
-    {
-        if (playerInput != null && playerInput.actions != null && !string.IsNullOrEmpty(aimActionName))
-            aimAction = playerInput.actions.FindAction(aimActionName, true);
     }
 
     private void LateUpdate()
     {
         if (ui == null) return;
 
-        if (onlyShowWhileAiming)
-        {
-            bool aiming = aimAction != null && aimAction.IsPressed();
-            if (!aiming)
-            {
-                SetVisible(false);
-                return;
-            }
-        }
-
-        Vector2 sp = Mouse.current != null
-            ? Mouse.current.position.ReadValue()
-            : new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+        Vector2 sp = Mouse.current != null ? Mouse.current.position.ReadValue() : new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
 
         bool offscreen = sp.x < 0f || sp.x > Screen.width || sp.y < 0f || sp.y > Screen.height;
 

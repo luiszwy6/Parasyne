@@ -6,14 +6,12 @@ using UnityEngine;
 public class MuzzlePointSettings : MonoBehaviour
 {
     [Header("Refs")]
-    [Tooltip("Gun muzzle empty transform.")]
     [SerializeField] private Transform muzzlePoint;
-
-    [Tooltip("Your aiming provider (preferred). Uses AimPointClamped for the true aim point.")]
     [SerializeField] private PlayerCrossHairSettings crosshairSettings;
-
-    [Tooltip("Optional fallback: 3D crosshair transform. Used if crosshairSettings is null.")]
     [SerializeField] private Transform crosshairTransform;
+
+    [Header("Aim Source")]
+    [SerializeField] private bool useCrosshairTransformAsAimPoint = true;
 
     [Header("Raycast (Bullet Trajectory Debug)")]
     [Tooltip("Layers that can be hit by the shot ray.")]
@@ -22,6 +20,9 @@ public class MuzzlePointSettings : MonoBehaviour
     [Tooltip("Max extra distance beyond aim point distance (for safety).")]
     [Min(0f)]
     [SerializeField] private float extraDistance = 2f;
+
+    [Min(0.01f)]
+    [SerializeField] private float rangeOfProjectile = 50f;
 
     [Tooltip("Ignore trigger colliders.")]
     [SerializeField] private QueryTriggerInteraction triggerInteraction = QueryTriggerInteraction.Ignore;
@@ -90,7 +91,7 @@ public class MuzzlePointSettings : MonoBehaviour
         float distToAim = toAim.magnitude;
 
         Vector3 dir = (distToAim > 0.0001f) ? (toAim / distToAim) : muzzlePoint.forward;
-        float maxDist = Mathf.Max(0.01f, distToAim + extraDistance);
+        float maxDist = Mathf.Max(0.01f, rangeOfProjectile);
 
         LastRay = new Ray(origin, dir);
 
@@ -103,7 +104,9 @@ public class MuzzlePointSettings : MonoBehaviour
 
     private Vector3 ResolveAimPoint()
     {
-        // Prefer the computed aim point 
+        if (useCrosshairTransformAsAimPoint && crosshairTransform != null)
+            return crosshairTransform.position;
+
         if (crosshairSettings != null)
             return crosshairSettings.AimPointClamped;
 
