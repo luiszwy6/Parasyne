@@ -3703,8 +3703,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 284483074}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.38268304, y: 0, z: 0, w: 0.92387974}
-  m_LocalPosition: {x: 0.58299977, y: 4.6416245, z: -4.66043}
+  m_LocalRotation: {x: 0.38259518, y: 0, z: 0, w: 0.9239161}
+  m_LocalPosition: {x: 0.58299977, y: 4.6416144, z: -4.66044}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4157,8 +4157,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.07529581
-  m_Center: {x: 0, y: 0.077088006, z: -0.008665465}
+  m_Radius: 0.08352598
+  m_Center: {x: -0.0045122304, y: 0.080806024, z: -0.008665466}
 --- !u!1 &303518760
 GameObject:
   m_ObjectHideFlags: 0
@@ -8471,8 +8471,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 565128520}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.36850905, y: 0, z: 0, w: 0.92962414}
-  m_LocalPosition: {x: 0.58299977, y: 4.5537996, z: -4.7456083}
+  m_LocalRotation: {x: 0.382671, y: 0, z: 0, w: 0.9238847}
+  m_LocalPosition: {x: 0.58299977, y: 4.641551, z: -4.6605034}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12557,8 +12557,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MuzzlePointSettings
   muzzlePoint: {fileID: 347999168}
   crosshairSettings: {fileID: 2667344248999718877}
-  crosshairTransform: {fileID: 1423247028}
-  useCrosshairTransformAsAimPoint: 1
+  physicalBulletLandPoint: {fileID: 1423247028}
+  usePhysicalBulletLandPointAsAimPoint: 1
   hitLayers:
     serializedVersion: 2
     m_Bits: 1352
@@ -24435,10 +24435,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.15028946
-  m_Height: 0.3005789
+  m_Radius: 0.14446251
+  m_Height: 0.3671085
   m_Direction: 1
-  m_Center: {x: -8.580016e-12, y: 0.036667842, z: 1.6552772e-10}
+  m_Center: {x: -0.0017446724, y: 0.0034030376, z: 0.016441343}
 --- !u!1 &1728505342 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: a6a4077f5d88b65438a1c5048c7a590e, type: 3}
@@ -32277,7 +32277,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCrossHairSettings
   aimSettings: {fileID: 5380723106855352375}
-  crosshair: {fileID: 1423247028}
+  physicalAimPoint: {fileID: 1423247028}
   playerEyePoint: {fileID: 1379461960}
   tpsMode: 0
   mouseAimLayers:
@@ -38222,7 +38222,7 @@ GameObject:
   - component: {fileID: 856767326}
   - component: {fileID: 856767325}
   m_Layer: 7
-  m_Name: WeaponPlaceholder
+  m_Name: Pistol
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

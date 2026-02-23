@@ -5,7 +5,7 @@ public class PlayerCrossHairSettings : MonoBehaviour
 {
     [Header("References")]
     public PlayerAimSettings aimSettings;
-    public Transform crosshair;
+    public Transform physicalAimPoint;
     public Transform playerEyePoint;
 
     [Header("TPS")]
@@ -212,7 +212,7 @@ public class PlayerCrossHairSettings : MonoBehaviour
 
     void UpdateCrosshairVisual(Transform actor, bool isAiming)
     {
-        if (crosshair == null) return;
+        if (physicalAimPoint == null) return;
 
         Vector3 pos = AimPointClamped;
         float eyeY = (playerEyePoint != null) ? playerEyePoint.position.y : actor.position.y;
@@ -229,7 +229,7 @@ public class PlayerCrossHairSettings : MonoBehaviour
                 break;
         }
 
-        crosshair.position = pos;
+        physicalAimPoint.position = pos;
     }
 
     Vector3 StopAimPointByLayer(Transform actor, Vector3 aimPoint)
