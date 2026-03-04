@@ -15,11 +15,13 @@ public class PlayerShootSettings : MonoBehaviour
     [SerializeField] private string shootActionName = "Shoot";
 
     private InputAction shootAction;
-
+    public PlayerAimSettings aimSettings;
     private void Awake()
     {
         if (playerInput != null)
             shootAction = playerInput.actions[shootActionName];
+        if (aimSettings == null)
+            aimSettings = GetComponent<PlayerAimSettings>(); 
     }
 
     private void OnEnable()
@@ -41,8 +43,9 @@ public class PlayerShootSettings : MonoBehaviour
 
     public void Shoot()
     {
-
-        if (audioSource != null && gunshotClip != null)
+        
+        //
+        if (audioSource != null && gunshotClip != null && aimSettings.IsAiming == true )
         {
             audioSource.PlayOneShot(gunshotClip);
         }
