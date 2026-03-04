@@ -49,8 +49,10 @@ public class PlayerShootSettings : MonoBehaviour
         //
         if (audioSource != null && gunshotClip != null && aimSettings.IsAiming == true )
         {
-            audioSource.PlayOneShot(gunshotClip);
+            muzzleFlash.Stop();
+            muzzleFlash.Clear();
             muzzleFlash.Play();
+            audioSource.PlayOneShot(gunshotClip);
         }
     }
 }
