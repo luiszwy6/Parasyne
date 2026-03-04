@@ -6,13 +6,15 @@ public class PlayerShootSettings : MonoBehaviour
 {
     [Header("Refs")]
     [SerializeField] private MuzzlePointSettings muzzlePointSettings;
-
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip gunshotClip;
-
+    [SerializeField] private ParticleSystem muzzleFlash;
+    
     [Header("Input (optional)")]
     [SerializeField] private PlayerInput playerInput;
     [SerializeField] private string shootActionName = "Shoot";
+
+    [Header("Animator Param")]
 
     private InputAction shootAction;
     public PlayerAimSettings aimSettings;
@@ -48,6 +50,7 @@ public class PlayerShootSettings : MonoBehaviour
         if (audioSource != null && gunshotClip != null && aimSettings.IsAiming == true )
         {
             audioSource.PlayOneShot(gunshotClip);
+            muzzleFlash.Play();
         }
     }
 }

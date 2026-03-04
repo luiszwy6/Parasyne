@@ -3704,7 +3704,7 @@ Transform:
   m_GameObject: {fileID: 284483074}
   serializedVersion: 2
   m_LocalRotation: {x: 0.38259518, y: 0, z: 0, w: 0.9239161}
-  m_LocalPosition: {x: 0.58299977, y: 4.6416144, z: -4.66044}
+  m_LocalPosition: {x: 0.58299977, y: 4.641087, z: -4.6609674}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6900,7 +6900,7 @@ MonoBehaviour:
   m_OverrideTileSize: 0
   m_TileSize: 256
   m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.11666667
+  m_VoxelSize: 0.033333335
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: e516546cbe809304e85b0c220abc04f0, type: 2}
   m_BuildHeightMesh: 0
@@ -8471,8 +8471,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 565128520}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.382671, y: 0, z: 0, w: 0.9238847}
-  m_LocalPosition: {x: 0.58299977, y: 4.641551, z: -4.6605034}
+  m_LocalRotation: {x: 0.3138359, y: 0, z: 0, w: 0.94947726}
+  m_LocalPosition: {x: 0.58299977, y: 4.1970406, z: -5.0440564}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12541,8 +12541,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerShootSettings
   muzzlePointSettings: {fileID: 856767326}
+  audioSource: {fileID: 0}
+  gunshotClip: {fileID: 0}
   playerInput: {fileID: 7897596133559910742}
   shootActionName: Shoot
+  aimSettings: {fileID: 0}
 --- !u!114 &856767326
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14743,7 +14746,7 @@ MonoBehaviour:
   m_OverrideTileSize: 0
   m_TileSize: 256
   m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.11666667
+  m_VoxelSize: 0.033333335
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: c9e1fad270d004044a440a6c5827e6d5, type: 2}
   m_BuildHeightMesh: 0
@@ -33142,7 +33145,7 @@ MonoBehaviour:
   cameraTransform: {fileID: 330585546}
   aimCamera: {fileID: 1301389219}
   crosshairSettings: {fileID: 2667344248999718877}
-  showAimLine: 0
+  showAimLine: 1
   aimLine: {fileID: 1469258926}
   aimLineStartStanding: {fileID: 3349514371381623827}
   aimLineStartCrouching: {fileID: 5795592348535531935}
@@ -38249,6 +38252,7 @@ GameObject:
   - component: {fileID: 1346299517}
   - component: {fileID: 1346299526}
   - component: {fileID: 1346299530}
+  - component: {fileID: 8736653438011435526}
   - component: {fileID: 1346299525}
   m_Layer: 10
   m_Name: Player
@@ -38257,6 +38261,24 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &8736653438011435526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8736653438011435525}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 218c6ff05e63f1b4e87665081b212034, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerShootSettings
+  muzzlePointSettings: {fileID: 856767326}
+  audioSource: {fileID: 1346299525}
+  gunshotClip: {fileID: 8300000, guid: 17d899e0d48ce6d40be179811f51afb9, type: 3}
+  playerInput: {fileID: 7897596133559910742}
+  shootActionName: Shoot
+  aimSettings: {fileID: 0}
 --- !u!114 &8991958589418571935
 MonoBehaviour:
   m_ObjectHideFlags: 0
