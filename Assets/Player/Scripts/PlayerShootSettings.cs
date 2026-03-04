@@ -7,6 +7,9 @@ public class PlayerShootSettings : MonoBehaviour
     [Header("Refs")]
     [SerializeField] private MuzzlePointSettings muzzlePointSettings;
 
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip gunshotClip;
+
     [Header("Input (optional)")]
     [SerializeField] private PlayerInput playerInput;
     [SerializeField] private string shootActionName = "Shoot";
@@ -39,7 +42,9 @@ public class PlayerShootSettings : MonoBehaviour
     public void Shoot()
     {
 
-        if (muzzlePointSettings != null)
-            muzzlePointSettings.RequestDebugDraw();
+        if (audioSource != null && gunshotClip != null)
+        {
+            audioSource.PlayOneShot(gunshotClip);
+        }
     }
 }
