@@ -34,8 +34,8 @@ ModelImporter:
       name: Meele_Awaring
       takeName: mixamo.com
       internalID: -203655887218126122
-      firstFrame: 100
-      lastFrame: 219
+      firstFrame: 60
+      lastFrame: 240
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -43,7 +43,7 @@ ModelImporter:
       loop: 0
       hasAdditiveReferencePose: 0
       loopTime: 1
-      loopBlend: 0
+      loopBlend: 1
       loopBlendOrientation: 1
       loopBlendPositionY: 1
       loopBlendPositionXZ: 1

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95eac2c8eec6cff419c5ba230a4fb644, type: 3}
+  m_Name: FS_Wood
+  m_EditorClassIdentifier: Assembly-CSharp::FootstepSurface
+  surfaceTag: Wood
+  walkClips:
+  - {fileID: 8300000, guid: 93da2aca34b5951488df4cf6740ee351, type: 3}
+  - {fileID: 8300000, guid: 45c6d992cbb4ba34c8e30cdcd62a23cd, type: 3}
+  runClips:
+  - {fileID: 8300000, guid: 8ce555f54ef883a41a28f6e42cb7df6a, type: 3}
+  - {fileID: 8300000, guid: 29a5e77c94816d749856edf8d3baebdb, type: 3}
+  crouchClips:
+  - {fileID: 8300000, guid: e217c5b7c40cbbf4d9d122ce4fa80edf, type: 3}
+  volumeMul: 1
+  pitchMin: -0.05
+  pitchMax: 0.05

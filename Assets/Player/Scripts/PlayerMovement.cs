@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -34,7 +35,6 @@ public class PlayerMovement : MonoBehaviour
     [Header("External Locks")]
     public bool externalMovementLock = false; // When true, block move/run/roll but keep crouch + aiming
 
-
     private Animator animator;
     private CharacterController controller;
     private PlayerInput playerInput;
@@ -45,12 +45,20 @@ public class PlayerMovement : MonoBehaviour
     private InputAction runAction;
     private InputAction crouchAction;
     private InputAction rollAction;
+    private InputAction stealthTakeDownAction;
 
     // State
     private Vector3 velocity;
     private bool isGrounded;
     private bool isCrouching;
     private bool isAiming;
+
+    private bool isStealthy;
+    private bool isTakingDown;
+    public float takedownDuration = 5.0f;
+    public float takedownTimer = 0f;
+    [SerializeField] private PlayerTakedownOffset takedownOffset;
+
     private bool isRolling;
     private float rollTimer;
     private float rollRemainingDistance;
@@ -73,11 +81,13 @@ public class PlayerMovement : MonoBehaviour
         runAction    = actions["Run"];
         crouchAction = actions["Crouch"];
         rollAction   = actions["Roll"];
+        stealthTakeDownAction = actions["StealthTakedown"];
 
         moveAction?.Enable();
         runAction?.Enable();
         crouchAction?.Enable();
         rollAction?.Enable();
+        stealthTakeDownAction?.Enable();
     }
 
     void OnDisable()
@@ -86,6 +96,7 @@ public class PlayerMovement : MonoBehaviour
         runAction?.Disable();
         crouchAction?.Disable();
         rollAction?.Disable();
+        stealthTakeDownAction?.Disable();
     }
 
     void Update()
@@ -104,9 +115,16 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
+        if (isTakingDown)
+        {
+            UpdateTakedown(dt);
+            return;
+        }
+
         // ----- Read input -----
         Vector2 moveInput = moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
         bool runHeld      = runAction != null && runAction.IsPressed();
+
         // External lock: block movement-related inputs only
         if (externalMovementLock)
         {
@@ -165,6 +183,16 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
+        // Stealth Takedown input
+        bool takedownPressed = stealthTakeDownAction != null && stealthTakeDownAction.WasPerformedThisFrame();
+        isStealthy = isCrouching;
+        if (takedownPressed && isGrounded && !isTakingDown && isStealthy)
+        {
+            StartTakedown();
+            UpdateTakedown(dt);
+            return;
+        }
+
         // ----- Base speed (non-aim) -----
         float baseSpeed;
         if (isCrouching) baseSpeed = crouchSpeed;
@@ -184,7 +212,6 @@ public class PlayerMovement : MonoBehaviour
         if (aimSettings != null)
         {
             facingDir = aimSettings.TickAimAndGetFacingDirection(transform, moveDirWorld, isCrouching);
-
             isAiming = aimSettings.IsAiming; // keep in sync
         }
 
@@ -206,7 +233,12 @@ public class PlayerMovement : MonoBehaviour
         {
             bool isMoving  = wantsToMove;
             bool isRunning = wantsToRun;
-            bool isWalking = isMoving && !isRunning && !isCrouching;
+            bool isWalking = isMoving && !isRunning;
+            bool isIdle    = !isWalking
+                          && !isRunning
+                          && !isAiming
+                          && !isRolling
+                          && !isTakingDown;
 
             Vector3 localMove = Vector3.zero;
             if (horizontal.sqrMagnitude > 0.0001f)
@@ -225,10 +257,12 @@ public class PlayerMovement : MonoBehaviour
                 animator.SetFloat("SpeedZ", localMove.z, speedDampTime, dt);
             }
 
-            animator.SetBool("IsCrouching", isCrouching);
-            animator.SetBool("IsRunning",   isRunning);
-            animator.SetBool("IsWalking",   isWalking);
-            animator.SetBool("IsAiming",    isAiming);
+            animator.SetBool("IsCrouching",  isCrouching);
+            animator.SetBool("IsRunning",    isRunning);
+            animator.SetBool("IsWalking",    isWalking);
+            animator.SetBool("IsAiming",     isAiming);
+            animator.SetBool("IsTakingDown", isTakingDown);
+            animator.SetBool("IsIdle",       isIdle);
         }
     }
 
@@ -257,6 +291,7 @@ public class PlayerMovement : MonoBehaviour
             animator.ResetTrigger("RollTrigger");
             animator.SetTrigger("RollTrigger");
             animator.SetBool("IsRolling", true);
+            animator.SetBool("IsIdle", false);
 
             Vector3 localRollDir = transform.InverseTransformDirection(dir);
             animator.SetFloat("RollDirX", localRollDir.x);
@@ -292,6 +327,37 @@ public class PlayerMovement : MonoBehaviour
             isRolling = false;
             if (animator != null)
                 animator.SetBool("IsRolling", false);
+        }
+    }
+
+    void StartTakedown()
+    {
+        isTakingDown = true;
+        takedownTimer = 0f;
+        externalMovementLock = true;
+
+        if (animator != null)
+        {
+            animator.ResetTrigger("TakeDown");
+            animator.SetTrigger("TakeDown");
+            animator.SetBool("IsTakingDown", true);
+            animator.SetBool("IsIdle", false);
+        }
+    }
+
+    void UpdateTakedown(float dt)
+    {
+        takedownTimer += dt;
+        if (takedownTimer >= takedownDuration)
+        {
+            isTakingDown = false;
+            takedownTimer = 0f;
+            externalMovementLock = false;
+
+            if (animator != null)
+            {
+                animator.SetBool("IsTakingDown", false);
+            }
         }
     }
 }

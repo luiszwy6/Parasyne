@@ -36,6 +36,14 @@ public class PlayerTPS : MonoBehaviour
     [SerializeField] private float pitchMax = 70f;
     [SerializeField] private bool lockCursorWhenActive = true;
 
+    [Header("Look Filter")]
+    [SerializeField] private float lookDeadzone = 0.0f;   // per-axis mouse delta deadzone
+    [SerializeField] private float maxLookDeltaX = 40f;   // clamp mouse delta X per frame
+    [SerializeField] private float maxLookDeltaY = 40f;   // clamp mouse delta Y per frame
+
+    [Header("Look Reset")]
+    [SerializeField] private string crouchBoolName = "IsCrouching";
+
     [Header("Aim (Center Screen Ray)")]
     [SerializeField] private float aimRayDistance = 200f;
     [SerializeField] private LayerMask aimHitMask = ~0;
@@ -86,8 +94,16 @@ public class PlayerTPS : MonoBehaviour
     private Vector3 aimPointVelocity;
     private bool hasSmoothedAimPoint;
 
+    // look reset runtime
+    private bool suppressLookOnce;
+    private bool lastCrouch;
+    private int crouchBoolHash;
+    private bool hasCrouchBool;
+
     // room override cache (visual visibility only)
     private readonly Dictionary<Room, bool> roomVisibilityCache = new();
+    public Camera OutputCamera => outputCamera;
+    public bool IsActive => active;
 
     private void Reset()
     {
@@ -109,6 +125,25 @@ public class PlayerTPS : MonoBehaviour
 
         if (playerInput != null)
             lookAction = playerInput.actions[lookActionName];
+
+        crouchBoolHash = Animator.StringToHash(crouchBoolName);
+        hasCrouchBool = false;
+
+        if (animator != null)
+        {
+            var ps = animator.parameters;
+            for (int i = 0; i < ps.Length; i++)
+            {
+                if (ps[i].type == AnimatorControllerParameterType.Bool && ps[i].nameHash == crouchBoolHash)
+                {
+                    hasCrouchBool = true;
+                    break;
+                }
+            }
+
+            if (hasCrouchBool)
+                lastCrouch = animator.GetBool(crouchBoolHash);
+        }
 
         // Ensure a clean start in top-down mode
         SetActive(false);
@@ -150,6 +185,7 @@ public class PlayerTPS : MonoBehaviour
         {
             hasSmoothedAimPoint = false;
             aimPointVelocity = Vector3.zero;
+            suppressLookOnce = true; // reset look delta on TPS enter
         }
 
         // visuals
@@ -169,12 +205,35 @@ public class PlayerTPS : MonoBehaviour
             tpsAimLine.enabled = active && isAiming;
     }
 
+    public void ZeroLookDeltaOnce()
+    {
+        suppressLookOnce = true;
+    }
+
     private void LateUpdate()
     {
         if (!active) return;
 
         // 1) TPS Look: drive yaw/pitch from mouse delta
         Vector2 delta = Mouse.current != null ? Mouse.current.delta.ReadValue() : Vector2.zero;
+
+        // reset look once when needed (TPS enter / crouch enter)
+        if (suppressLookOnce)
+        {
+            suppressLookOnce = false;
+            delta = Vector2.zero;
+        }
+
+        // detect crouch enter -> reset next look once
+        if (hasCrouchBool)
+        {
+            bool crouchNow = animator.GetBool(crouchBoolHash);
+            if (crouchNow && !lastCrouch)
+                suppressLookOnce = true;
+            lastCrouch = crouchNow;
+        }
+
+        delta = FilterLookDelta(delta);
 
         yaw += delta.x * sensitivity;
         pitch -= delta.y * sensitivity;
@@ -251,6 +310,17 @@ public class PlayerTPS : MonoBehaviour
         }
 
         UpdateAimLine(cam, ray, AimPoint);
+    }
+
+    private Vector2 FilterLookDelta(Vector2 d)
+    {
+        if (Mathf.Abs(d.x) < lookDeadzone) d.x = 0f;
+        if (Mathf.Abs(d.y) < lookDeadzone) d.y = 0f;
+
+        d.x = Mathf.Clamp(d.x, -Mathf.Abs(maxLookDeltaX), Mathf.Abs(maxLookDeltaX));
+        d.y = Mathf.Clamp(d.y, -Mathf.Abs(maxLookDeltaY), Mathf.Abs(maxLookDeltaY));
+
+        return d;
     }
 
     private void UpdateAimLine(Camera cam, Ray centerRay, Vector3 aimPoint)

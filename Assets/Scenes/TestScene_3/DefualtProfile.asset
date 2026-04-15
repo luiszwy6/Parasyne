@@ -106,10 +106,10 @@ MonoBehaviour:
     m_Value: {x: 1, y: 1, z: 1, w: 0.009302326}
   gamma:
     m_OverrideState: 1
-    m_Value: {x: 1, y: 1, z: 1, w: 0.046511628}
+    m_Value: {x: 1, y: 1, z: 1, w: 0.009074409}
   gain:
     m_OverrideState: 1
-    m_Value: {x: 1, y: 1, z: 1, w: 0.8154802}
+    m_Value: {x: 1, y: 1, z: 1, w: 0.18148819}
 --- !u!114 &6616206263179920062
 MonoBehaviour:
   m_ObjectHideFlags: 3

@@ -69,7 +69,7 @@ MonoBehaviour:
         m_PostInfinity: 0
         m_RotationOrder: 4
   - From: '**ANY CAMERA**'
-    To: TPS Camera
+    To: PeekCam
     Blend:
       Style: 0
       Time: 0
@@ -79,7 +79,7 @@ MonoBehaviour:
         m_PreInfinity: 0
         m_PostInfinity: 0
         m_RotationOrder: 4
-  - From: TPS Camera
+  - From: PeekCam
     To: '**ANY CAMERA**'
     Blend:
       Style: 0
@@ -91,7 +91,7 @@ MonoBehaviour:
         m_PostInfinity: 0
         m_RotationOrder: 4
   - From: '**ANY CAMERA**'
-    To: PeekCam_A
+    To: TPS Camera
     Blend:
       Style: 0
       Time: 0
@@ -101,7 +101,7 @@ MonoBehaviour:
         m_PreInfinity: 0
         m_PostInfinity: 0
         m_RotationOrder: 4
-  - From: PeekCam_A
+  - From: TPS Camera
     To: '**ANY CAMERA**'
     Blend:
       Style: 0

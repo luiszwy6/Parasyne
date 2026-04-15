@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95eac2c8eec6cff419c5ba230a4fb644, type: 3}
+  m_Name: FS_Glass
+  m_EditorClassIdentifier: Assembly-CSharp::FootstepSurface
+  surfaceTag: Glass
+  walkClips:
+  - {fileID: 8300000, guid: a014c09e0700b8447bec54d71a1709c1, type: 3}
+  runClips:
+  - {fileID: 8300000, guid: d50a4eb2156103d478f3d0a6bb6e4980, type: 3}
+  crouchClips:
+  - {fileID: 8300000, guid: a1d3ab3833c3f534e8f28617bc4fd295, type: 3}
+  volumeMul: 1
+  pitchMin: -0.05
+  pitchMax: 0.05

@@ -97,11 +97,13 @@ MonoBehaviour:
       RenderQueueType: 0
       LayerMask:
         serializedVersion: 2
-        m_Bits: 8192
-      PassNames: []
-    overrideMaterial: {fileID: 0}
+        m_Bits: 4294967295
+      PassNames:
+      - UniversalForward
+      - SRPDefaultUnlit
+    overrideMaterial: {fileID: 2100000, guid: 6ee954152fb24fa4db0f14f72f9216b6, type: 2}
     overrideMaterialPassIndex: 0
-    overrideShader: {fileID: 0}
+    overrideShader: {fileID: -6465566751694194690, guid: be7b9b1525f20a44c9a3988737144c21, type: 3}
     overrideShaderPassIndex: 0
     overrideMode: 0
     overrideDepthState: 0

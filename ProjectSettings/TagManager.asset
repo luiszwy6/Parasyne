@@ -9,6 +9,14 @@ TagManager:
   - RoomFloor_3
   - RoomFloor_4
   - OcclusionZone
+  - Wood
+  - Broken Glass
+  - Glass
+  - E_Head
+  - E_Torso
+  - E_Abdomen
+  - E_Leg
+  - E_Arm
   layers:
   - Default
   - TransparentFX
@@ -17,8 +25,8 @@ TagManager:
   - Water
   - UI
   - Wall
-  - Crosshair
-  - CrosshairLayer
+  - Weapon
+  - EnemyHurtBox
   - Ignored
   - Player
   - CameraSwitch
