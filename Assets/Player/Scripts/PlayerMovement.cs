@@ -12,7 +12,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(PlayerAimSettings))]
 public class PlayerMovement : MonoBehaviour
 {
-    [Header("Movement Parameters")]
+    [Header("Movement Parameters")] 
     public float walkSpeed   = 4f;
     public float runSpeed    = 6f;
     public float crouchSpeed = 2f;

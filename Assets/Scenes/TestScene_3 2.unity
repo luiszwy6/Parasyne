@@ -4365,8 +4365,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 284483074}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.3826704, y: 0, z: 0, w: 0.9238849}
-  m_LocalPosition: {x: 0.58299977, y: 4.6416273, z: -4.660427}
+  m_LocalRotation: {x: 0.27790454, y: 0, z: 0, w: 0.9606087}
+  m_LocalPosition: {x: 0.5829999, y: 3.9488604, z: -5.2141523}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -14517,8 +14517,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 565128520}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.38261873, y: 0, z: 0, w: 0.9239064}
-  m_LocalPosition: {x: 0.58299977, y: 4.6412306, z: -4.660823}
+  m_LocalRotation: {x: 0.38265258, y: 0, z: 0, w: 0.9238923}
+  m_LocalPosition: {x: 0.5829999, y: 4.6414385, z: -4.660616}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -19301,6 +19301,10 @@ PrefabInstance:
       propertyPath: awareness
       value: 
       objectReference: {fileID: 6430650383682795086}
+    - target: {fileID: 1232827643426079553, guid: afcd72cb04f240442aeb34d1995c9025, type: 3}
+      propertyPath: ammoSettings
+      value: 
+      objectReference: {fileID: 935986565}
     - target: {fileID: 1451685261411771258, guid: afcd72cb04f240442aeb34d1995c9025, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.17214
@@ -20145,6 +20149,7 @@ GameObject:
   - component: {fileID: 935986561}
   - component: {fileID: 935986560}
   - component: {fileID: 935986559}
+  - component: {fileID: 935986565}
   m_Layer: 7
   m_Name: Pistol
   m_TagString: Untagged
@@ -20316,6 +20321,7 @@ MonoBehaviour:
   animator: {fileID: 6096449198731134777}
   crosshairSettings: {fileID: 935986564}
   cameraNoiseByMovement: {fileID: 1115585052}
+  ammoSettings: {fileID: 935986565}
   weaponEffects: {fileID: 935986560}
   aimSettings: {fileID: 7897596133559910750}
   bulletProjectilePrefab: {fileID: 1894165824}
@@ -20419,6 +20425,22 @@ MonoBehaviour:
   gizmoPlayerToAimColor: {r: 1, g: 0.35, b: 0.1, a: 0.9}
   gizmoScreenRayColor: {r: 0.1, g: 1, b: 0.2, a: 0.9}
   gizmoOnlyWhenAiming: 1
+--- !u!114 &935986565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 935986557}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b21b896b1d2b3347a40146908a60746, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AmmoSettings
+  ammoCount: 20
+  maxAmmo: 20
+  magazineCount: 10
+  magazineMax: 15
 --- !u!1001 &937818356
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -43941,19 +43963,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8951330279549179861, guid: d2ce6e3f74fb608428eee254ff6b08be, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.922948
+      value: 4.9226727
       objectReference: {fileID: 0}
     - target: {fileID: 8951330279549179861, guid: d2ce6e3f74fb608428eee254ff6b08be, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -6.146873
+      value: -6.1465974
       objectReference: {fileID: 0}
     - target: {fileID: 8951330279549179861, guid: d2ce6e3f74fb608428eee254ff6b08be, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.92387956
+      value: 0.9238795
       objectReference: {fileID: 0}
     - target: {fileID: 8951330279549179861, guid: d2ce6e3f74fb608428eee254ff6b08be, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.38268343
+      value: 0.38268346
       objectReference: {fileID: 0}
     - target: {fileID: 8951330279549179861, guid: d2ce6e3f74fb608428eee254ff6b08be, type: 3}
       propertyPath: m_LocalRotation.y
@@ -44373,6 +44395,10 @@ PrefabInstance:
     - target: {fileID: 1017835614308459589, guid: bc6f02709f793644e802a7fe619955c4, type: 3}
       propertyPath: runSpeed
       value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1017835614308459589, guid: bc6f02709f793644e802a7fe619955c4, type: 3}
+      propertyPath: walkSpeed
+      value: 1.25
       objectReference: {fileID: 0}
     - target: {fileID: 1017835614308459589, guid: bc6f02709f793644e802a7fe619955c4, type: 3}
       propertyPath: cameraTransform

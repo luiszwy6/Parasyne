@@ -8,6 +8,7 @@ public class PlayerAwarenessGUI : MonoBehaviour
 {
     [Header("Ref")]
     [SerializeField] private PlayerAwareness awareness;
+    [SerializeField] private AmmoSettings ammoSettings;
 
     [Header("Layout")]
     [SerializeField] private Vector2 margin = new Vector2(16f, 16f);
@@ -18,18 +19,21 @@ public class PlayerAwarenessGUI : MonoBehaviour
     [SerializeField] private bool showLightness = true;
     [SerializeField] private bool showNoisiness = true;
     [SerializeField] private bool showBars = true;
+    [SerializeField] private bool showAmmo = true;
 
     private GUIStyle style;
 
     private void Reset()
     {
         if (awareness == null) awareness = FindFirstObjectByType<PlayerAwareness>();
+        if (ammoSettings == null) ammoSettings = FindFirstObjectByType<AmmoSettings>();
     }
 
     private void Awake()
     {
         // Only cache references here. GUIStyle is lazily created in OnGUI().
         if (awareness == null) awareness = FindFirstObjectByType<PlayerAwareness>();
+        if (ammoSettings == null) ammoSettings = FindFirstObjectByType<AmmoSettings>();
     }
 
     private void OnGUI()
@@ -65,6 +69,18 @@ public class PlayerAwarenessGUI : MonoBehaviour
             string bar = showBars ? MakeBar(v, 2) : "";
             GUI.Label(new Rect(x, y, 420f, lineHeight),
                 $"<b>Noise</b>: {v}/2  {bar}",
+                style);
+            y += lineHeight;
+        }
+        if (showAmmo && ammoSettings != null)
+        {
+            GUI.Label(new Rect(x, y, 600f, lineHeight*2),
+                $"<b>Magazine</b>: {ammoSettings.magazineCount}/{ammoSettings.magazineMax}",
+                style);
+            y += lineHeight;
+
+            GUI.Label(new Rect(x, y, 600f, lineHeight*2),
+                $"<b>Ammo</b>: {ammoSettings.ammoCount}/{ammoSettings.maxAmmo}",
                 style);
             y += lineHeight;
         }

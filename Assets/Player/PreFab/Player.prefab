@@ -45,7 +45,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 527870064611417269, guid: bc3adc5556d6f604eb01fdf640fb1a20, type: 3}
       propertyPath: walkSpeed
-      value: 1.75
+      value: 1.25
       objectReference: {fileID: 0}
     - target: {fileID: 527870064611417269, guid: bc3adc5556d6f604eb01fdf640fb1a20, type: 3}
       propertyPath: crouchSpeed
@@ -95,6 +95,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4977005538715541024, guid: bc3adc5556d6f604eb01fdf640fb1a20, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4977005538715541024, guid: bc3adc5556d6f604eb01fdf640fb1a20, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.0407
+      objectReference: {fileID: 0}
     - target: {fileID: 5380723106835610978, guid: bc3adc5556d6f604eb01fdf640fb1a20, type: 3}
       propertyPath: aimWalkSpeed
       value: 1.5
@@ -113,7 +121,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8736653437991169872, guid: bc3adc5556d6f604eb01fdf640fb1a20, type: 3}
       propertyPath: m_Name
-      value: Player 1
+      value: Player
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 6096449198752842348, guid: bc3adc5556d6f604eb01fdf640fb1a20, type: 3}

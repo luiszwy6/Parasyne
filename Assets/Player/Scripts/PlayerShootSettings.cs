@@ -10,6 +10,7 @@ public class PlayerShootSettings : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private PlayerCrossHairSettings crosshairSettings;
     [SerializeField] private CameraNoiseByMovement cameraNoiseByMovement;
+    [SerializeField] private AmmoSettings ammoSettings; 
 
     [Header("Weapon SFX/VFX")]
     [SerializeField] private WeaponEffects weaponEffects;
@@ -45,6 +46,7 @@ public class PlayerShootSettings : MonoBehaviour
     [SerializeField] private string shootActionName = "Shoot";
 
     private InputAction shootAction;
+    private InputAction reloadAction;
     private float nextShootTime;
     private int shootTriggerHash;
 
@@ -56,6 +58,7 @@ public class PlayerShootSettings : MonoBehaviour
         if (animator == null) animator = GetComponentInChildren<Animator>();
         if (crosshairSettings == null) crosshairSettings = FindFirstObjectByType<PlayerCrossHairSettings>();
         if (weaponEffects == null) weaponEffects = GetComponentInChildren<WeaponEffects>();
+        if (ammoSettings == null) ammoSettings = GetComponent<AmmoSettings>(); 
     }
 
     private void Awake()
@@ -65,9 +68,12 @@ public class PlayerShootSettings : MonoBehaviour
         if (playerInput == null) playerInput = GetComponent<PlayerInput>();
         if (animator == null) animator = GetComponentInChildren<Animator>();
         if (weaponEffects == null) weaponEffects = GetComponentInChildren<WeaponEffects>();
+        if (ammoSettings == null) ammoSettings = GetComponent<AmmoSettings>(); 
 
         if (playerInput != null && playerInput.actions != null)
             shootAction = playerInput.actions[shootActionName];
+        if (playerInput != null && playerInput.actions != null)
+            reloadAction = playerInput.actions["Reload"];
 
         shootTriggerHash = Animator.StringToHash(shootTriggerName);
         nextShootTime = 0f;
@@ -80,6 +86,11 @@ public class PlayerShootSettings : MonoBehaviour
             shootAction.Enable();
             shootAction.performed += OnShootPerformed;
         }
+        if (reloadAction != null)
+        {
+            reloadAction.Enable();
+            reloadAction.performed += OnReloadPerformed;
+        }
     }
 
     private void OnDisable()
@@ -88,6 +99,11 @@ public class PlayerShootSettings : MonoBehaviour
         {
             shootAction.performed -= OnShootPerformed;
             shootAction.Disable();
+        }
+        if (reloadAction != null)
+        {
+            reloadAction.performed -= OnReloadPerformed;
+            reloadAction.Disable();
         }
     }
 
@@ -99,8 +115,15 @@ public class PlayerShootSettings : MonoBehaviour
         Shoot();
     }
 
-    public void Shoot()
+    private void OnReloadPerformed(InputAction.CallbackContext ctx)
     {
+        ammoSettings.reload();
+    }
+
+    public void Shoot()
+    {   
+        if (ammoSettings.getBulletsInMag() <= 0 )
+            return;
         if (shootCooldown > 0f && Time.time < nextShootTime)
             return;
 
@@ -110,6 +133,7 @@ public class PlayerShootSettings : MonoBehaviour
         if (muzzlePointSettings == null || bulletProjectilePrefab == null)
             return;
 
+        ammoSettings.shoot(); 
         nextShootTime = Time.time + Mathf.Max(0f, shootCooldown);
 
         if (crosshairSettings != null)
