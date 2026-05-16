@@ -120,6 +120,8 @@ public class PlayerShootSettings : MonoBehaviour
         ammoSettings.reload();
     }
 
+
+
     public void Shoot()
     {   
         if (ammoSettings.getBulletsInMag() <= 0 )
